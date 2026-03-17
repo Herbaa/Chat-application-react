@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   const message = await prisma.message.create({
     data: {
-      username: username.trim(),
+      username: username.trim().toLowerCase(),
       text: text.trim(),
     },
   })

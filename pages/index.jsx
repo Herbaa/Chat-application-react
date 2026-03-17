@@ -35,6 +35,10 @@ export default function Home() {
       })
     })
 
+    channel.bind("chat-cleared", () => {
+      setMessages([])
+    })
+
     return () => {
       channel.unbind_all()
       pusher.unsubscribe("chat-channel")
@@ -59,6 +63,11 @@ export default function Home() {
     } finally {
       setSending(false);
     }
+  }
+
+  async function clearChat() {
+    if (!confirm("Очистить весь чат?")) return
+    await fetch("/api/clear", { method: "DELETE" })
   }
 
   // страница входа
@@ -88,7 +97,10 @@ export default function Home() {
             <button
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-3 text-sm transition-colors"
               disabled={!username.trim()}
-              onClick={() => setJoined(true)}
+              onClick={() => {
+                setUsername(username.trim().toLowerCase())
+                setJoined(true)
+              }}
             >
               Войти в чат
             </button>
@@ -138,9 +150,17 @@ export default function Home() {
         {/* сам чат */}
         <main className="flex-1 flex flex-col overflow-hidden">
 
-          <header className="px-6 py-4 border-b border-slate-800 bg-slate-900/50">
-            <div className="text-sm font-semibold text-slate-300">Чат</div>
-            <div className="text-xs text-slate-500">Real-time чат</div>
+          <header className="px-6 py-4 border-b border-slate-800 bg-slate-900/50 flex justify-between">
+            <div>
+              <div className="text-sm font-semibold text-slate-300">Чат</div>
+              <div className="text-xs text-slate-500">Real-time чат</div>
+            </div>
+            <button
+              onClick={clearChat}
+              className="text-xs text-slate-500 hover:text-rose-400 px-3 py-1 rounded-lg hover:bg-slate-800"
+            >
+              Очистить чат
+            </button>
           </header>
 
           {/* сообщения */}

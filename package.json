@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "5.22.0",
+    "@tursodatabase/database": "^0.5.1",
     "@types/sentiment": "^5.0.4",
     "axios": "^1.13.6",
     "body-parser": "^2.2.2",
