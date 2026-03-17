@@ -10,7 +10,7 @@ export default function MessageBubble({ message, isOwn }) {
     <div className={`flex flex-col mb-4 ${isOwn ? "items-end" : "items-start"}`}>
 
       {!isOwn && ( // если мое соо - имя не показывается
-        <span className="text-xs text-slate-500 mb-1 ml-1">
+        <span className="text-xs text-slate-400 mb-1 ml-1">
           {message.username}
         </span>
       )}
@@ -25,7 +25,7 @@ export default function MessageBubble({ message, isOwn }) {
         {message.text}
       </div>
 
-      <span className={`text-xs text-slate-600 mt-1 ${isOwn ? "mr-1" : "ml-1"}`}>
+      <span className={`text-xs text-slate-500 mt-1 ${isOwn ? "mr-1" : "ml-1"}`}>
         {time}
       </span>
 
