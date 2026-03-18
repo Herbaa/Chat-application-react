@@ -5,6 +5,9 @@ Real-time чат на основе Next.js и Pusher. Пользователи �
 
 ## [Ссылка на деплой](https://chat-application-react-pi.vercel.app/)
 
+### Демонстрация работы (gif)
+![msedge_5UNGNaYFA7](https://github.com/user-attachments/assets/5d82afbf-2bb3-4dc7-ab86-cac7f7cf344a)
+
 ## Стек
 
 Frontend: React, Next.js, Tailwind CSS
