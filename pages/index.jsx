@@ -10,6 +10,7 @@ export default function Home() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false) 
   const bottomRef = useRef(null);
+  const [onlineUsers, setOnlineUsers] = useState([])
 
   // загрузка истории чата
   useEffect(() => {
@@ -19,31 +20,55 @@ export default function Home() {
       .then((data) => setMessages(data))
   }, [joined])
 
-  useEffect(() => {
-    if (!joined) return
+useEffect(() => {
+  if (!joined) return
 
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+  const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    channelAuthorization: {
+      endpoint: "/api/pusher/auth",
+      transport: "ajax",
+      params: { username },
+    },
+  })
+
+  const channel = pusher.subscribe("presence-chat-channel")
+
+  // members - все пользователи онлайн
+  channel.bind("pusher:subscription_succeeded", (members) => {
+    const users = []
+    members.each((member) => users.push(member.info.username))
+    setOnlineUsers(users)
+  })
+
+  // если пользователь зашел
+  channel.bind("pusher:member_added", (member) => {
+    setOnlineUsers((prev) => [...prev, member.info.username])
+  })
+
+  // если пользователь вышел
+  channel.bind("pusher:member_removed", (member) => {
+    setOnlineUsers((prev) =>
+      prev.filter((u) => u !== member.info.username)
+    )
+  })
+
+  channel.bind("new-message", (msg) => {
+    setMessages((prev) => {
+      if (prev.find((m) => m.id === msg.id)) return prev
+      return [...prev, msg]
     })
+  })
 
-    const channel = pusher.subscribe("chat-channel")
+  channel.bind("chat-cleared", () => {
+    setMessages([])
+  })
 
-    channel.bind("new-message", (msg) => {
-      setMessages((prev) => {
-        if (prev.find((m) => m.id === msg.id)) return prev // Защита от дублей
-        return [...prev, msg]
-      })
-    })
-
-    channel.bind("chat-cleared", () => {
-      setMessages([])
-    })
-
-    return () => {
-      channel.unbind_all()
-      pusher.unsubscribe("chat-channel")
-    }
-  }, [joined])
+  return () => {
+    channel.unbind_all()
+    pusher.unsubscribe("presence-chat-channel")
+  }
+}, [joined])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView()
@@ -139,7 +164,28 @@ export default function Home() {
             </div>
               <div className="text-xs text-slate-300 font-semibold">Всего сообщений: {messages.length}</div>
           </div>
-
+          <div className="flex flex-col gap-2">
+            <div className="text-xs text-slate-500 uppercase tracking-widest">
+              Онлайн - {onlineUsers.length}
+            </div>
+            
+            {onlineUsers.map((user) => (
+              <div key={user} className="flex items-center gap-2">
+                <div className={`
+                  w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                  ${user === username ? "bg-indigo-600" : "bg-slate-700"}
+                `}>
+                  {user[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-xs text-slate-300">
+                    {user} {user === username && "(я)"}
+                  </div>
+                  <div className="text-xs text-emerald-400">онлайн</div>
+                </div>
+              </div>
+            ))}
+          </div>
           <div className="mt-auto text-xs text-slate-600 text-center"> 
             Next.js + Pusher + SqLite
           </div>

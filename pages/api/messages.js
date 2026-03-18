@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     },
   })
 
-  await pusherServer.trigger("chat-channel", "new-message", message)
+  await pusherServer.trigger("presence-chat-channel", "new-message", message)
 
   return res.status(200).json(message)
 }

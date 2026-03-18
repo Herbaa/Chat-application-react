@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   await prisma.message.deleteMany()
 
-  await pusherServer.trigger("chat-channel", "chat-cleared", {})
+  await pusherServer.trigger("presence-chat-channel", "chat-cleared", {})
 
   return res.status(200).json({ success: true })
 }
